@@ -5,7 +5,7 @@ export function ProductDetails({
   product,
   isLoading,
 }: {
-  product: Product | undefined;
+  product: Product | null;
   isLoading: boolean;
 }) {
   return !product || isLoading ? (

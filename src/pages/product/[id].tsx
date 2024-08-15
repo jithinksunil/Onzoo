@@ -3,7 +3,9 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { ProductDetails } from '@/components/productDetails';
 import Head from 'next/head';
-export type Product = {
+import { GetServerSideProps } from 'next';
+
+export interface Product {
   id: number;
   title: string;
   price: number;
@@ -11,28 +13,11 @@ export type Product = {
   category: string;
   image: string;
   rating: { rate: number; count: number };
-};
-
-export default function Home() {
-  const router = useRouter();
-  const { id } = router.query;
-  const [product, setProduct] = useState<Product>();
-  const [loading, setLoading] = useState<boolean>(true);
-  const fetchProduct = async (id: number) => {
-    try {
-      const res: Product = await fetch(
-        `https://fakestoreapi.com/products/${id}`
-      ).then((res) => res.json());
-      if (res) setProduct(res);
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setLoading(false);
-    }
-  };
-  useEffect(() => {
-    if (id) fetchProduct(id as unknown as number);
-  }, [id]);
+}
+interface Props {
+  product: Product | null;
+}
+export default function Home({ product }: Props) {
   return (
     <>
       <Head>
@@ -69,7 +54,7 @@ export default function Home() {
         </div>
         <div className='flex-grow'>
           <div className='max-w-[1220px] px-5 mx-auto py-16'>
-            <ProductDetails product={product} isLoading={loading} />
+            <ProductDetails product={product} isLoading={!product} />
           </div>
         </div>
         <div className='border-t border-gray-600'>
@@ -79,3 +64,25 @@ export default function Home() {
     </>
   );
 }
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const { id } = context.query;
+
+  try {
+    const res = await fetch(`https://fakestoreapi.com/products/${id}`);
+    const product: Product = await res.json();
+
+    return {
+      props: {
+        product,
+      },
+    };
+  } catch (error) {
+    console.error(error);
+    return {
+      props: {
+        product: null,
+      },
+    };
+  }
+};

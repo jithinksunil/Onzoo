@@ -36,7 +36,7 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>{product?.title}</title>
+        <title>{'Oonzoo'}</title>
         <link
           rel='shortcut icon'
           href={
